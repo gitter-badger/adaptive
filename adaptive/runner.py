@@ -14,6 +14,8 @@ try:
 except ModuleNotFoundError:
     with_distributed = False
 
+active_runner_tasks = dict()
+
 
 class Runner:
     """Runs a learning algorithm in an executor.
@@ -49,7 +51,7 @@ class Runner:
     """
 
     def __init__(self, learner, executor=None, goal=None, *,
-                 log=False, ioloop=None, shutdown_executor=True):
+                 log=False, ioloop=None, shutdown_executor=True, name=None):
         self.ioloop = ioloop if ioloop else asyncio.get_event_loop()
 
         if in_ipynb() and not self.ioloop.is_running():
@@ -68,9 +70,17 @@ class Runner:
                 return False
 
         self.goal = goal
+        self.name = name
+
+        global active_runner_tasks
+        if name in active_runner_tasks:
+            active_runner_tasks[name].cancel()
 
         coro = self._run()
         self.task = self.ioloop.create_task(coro)
+
+        active_runner_tasks[name] = self.task
+
 
     def run_sync(self):
         return self.ioloop.run_until_complete(self.task)
@@ -117,6 +127,9 @@ class Runner:
                 await asyncio.wait(remaining)
             if self.shutdown_executor:
                 self.executor.shutdown()
+            if active_runner_tasks[self.name] is asyncio.Task.current_task():
+                active_runner_tasks.pop(self.name, None)
+
 
 
 def replay_log(learner, log):

@@ -38,6 +38,10 @@ class Runner:
         If True, shutdown the executor when the runner has completed. If
         'executor' is not provided then the executor created internally
         by the runner is shut down, regardless of this parameter.
+    name : hashable, optional
+        A name for the runner task in `adaptive.active_runner_tasks`. By
+        default the name is `None` and if another task with the same name
+        already exists that other runner is canceled.
 
     Attributes
     ----------

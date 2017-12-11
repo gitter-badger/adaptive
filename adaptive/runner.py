@@ -208,3 +208,14 @@ def in_ipynb():
         return get_ipython().__class__.__name__ == 'ZMQInteractiveShell'
     except NameError:
         return False
+
+
+def blocking_runner(learner, goal=None):
+    if goal is None:
+        goal = lambda l: False
+
+    while not goal(learner):
+        xs, _ = learner.choose_points(1)
+        for x in xs:
+            y = learner.function(x)
+            learner.add_point(x, y)

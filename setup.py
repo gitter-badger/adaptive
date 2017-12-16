@@ -5,7 +5,9 @@ from setuptools import setup
 
 
 install_requires = ['scipy', 'ipython', 'sortedcontainers']
-extras_require = {'recommended': ['holoviews>=1.9.1', 'ipyparallel', 'distributed']}
+extras_require = {'recommended': ['holoviews>=1.10',
+                                  'ipyparallel',
+                                  'distributed']}
 
 setup(
     name='adaptive',
